@@ -12,6 +12,8 @@
 #define DEVICE_FORMAT ma_format_f32
 #define DEVICE_CHANNELS 1
 #define DEVICE_SAMPLE_RATE 44100
+#define RELEASE_TIME 0.1f
+#define ATTACK_TIME 0.001f
 
 typedef struct oscillator {
   float phase;
@@ -141,14 +143,15 @@ void start_note(audio_device_handle handle, int index) {
   audio_t *ctx = (audio_t *)handle;
   ctx->voices[index].active = MA_TRUE;
   ctx->voices[index].released = MA_FALSE;
-  ctx->voices[index].amp = 1.0f;
+  ctx->voices[index].amp = 0.0f;
 }
 
 void stop_note(void *handle, int index) {
   if (!handle)
     return;
   audio_t *ctx = (audio_t *)handle;
-  ctx->voices[index].active = MA_FALSE;
+  // ctx->voices[index].active = MA_FALSE;
+  ctx->voices[index].released = MA_TRUE;
 }
 
 void set_wave(audio_device_handle handle, int type) {
@@ -157,6 +160,9 @@ void set_wave(audio_device_handle handle, int type) {
   audio_t *ctx = (audio_t *)handle;
   ctx->wavetype = type;
 }
+
+float attack_inc = 1.0f / (ATTACK_TIME * DEVICE_SAMPLE_RATE);
+float release_dec = 1.0f / (RELEASE_TIME * DEVICE_SAMPLE_RATE);
 
 void data_callback(ma_device *pDevice, void *pOutput, const void *pInput,
                    ma_uint32 frameCount) {
@@ -169,20 +175,35 @@ void data_callback(ma_device *pDevice, void *pOutput, const void *pInput,
 
   // Clear sound & preemptive stop on silence
   memset(out, 0, frameCount * DEVICE_CHANNELS * sizeof(float));
-  int num_keys = number_active(ctx->voices, 88);
+  // int num_keys = number_active(ctx->voices, 88);
 
-  if (num_keys <= 0)
-    return;
+  // if (num_keys <= 0)
+  //   return;
 
   float voices = 0;
   for (int i = 0; i < frameCount; ++i) {
     voices = 0;
     // Gen and Mix all voices
     for (int j = 0; j < 88; ++j) {
+
+      if (ctx->voices[j].released) {
+        ctx->voices[j].amp -= release_dec;
+        if (ctx->voices[j].amp < 0.0f) {
+          ctx->voices[j].amp = 0.0f;
+          ctx->voices[j].released = MA_FALSE; 
+          ctx->voices[j].active = MA_FALSE;
+        }
+      } else {
+        if (ctx->voices[j].amp < 1.0f) {
+          ctx->voices[j].amp += attack_inc;
+          if (ctx->voices[j].amp > 1.0f ) ctx->voices[j].amp = 1.0f ;
+        }
+      }
+
       if (ctx->voices[j].active) {
         gen_wave(&ctx->voices[j], ctx->wavetype);
         filter_wave(&ctx->voices[j], 10000.0f);
-        voices += ctx->voices[j].filtered_val;
+        voices += ctx->voices[j].filtered_val * ctx->voices[j].amp;
       }
     }
 
