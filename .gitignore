@@ -1,0 +1,9 @@
+# Meson
+ctypes
+time
+builddir
+bad
+
+# Any build files
+*.o
+*.so

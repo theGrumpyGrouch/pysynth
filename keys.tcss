@@ -1,0 +1,94 @@
+* {
+	background: black;
+	color: white;
+}
+
+Screen {
+	align: center middle;
+}
+
+
+.info {
+  display: block;
+  content-align: right middle;
+  width: 100%;
+  height: auto;
+  margin-top: 1;
+  background: #333;
+}
+
+.pitches {
+  content-align: center middle;
+  background: #333;
+  width: 100%;
+  height: auto;
+}
+
+#wave-info {
+  padding-left: 87;
+  width: auto;
+  background: #333;
+}
+#octave-info {
+  width: auto;
+  background: #333;
+}
+
+
+Keypad {
+	width: auto;
+	height: auto;
+	layout: vertical;
+	background: #333;
+	color: white;
+	align: center top;
+	content-align: center middle;
+	padding: 1;
+}
+
+.keys-container {
+	width: auto;
+	height: auto;
+}
+
+.key-slot {
+    position: relative;
+    margin-right: 0;
+	width: auto;
+	height: auto;
+}
+
+.white-key {
+	box-sizing: border-box;
+	background: white;
+	color: grey;
+	text-align: center;
+	content-align: center bottom;
+	width: 10;
+	height: 10;
+	/* border: panel grey; */
+}
+
+.black-key {
+	box-sizing: border-box;
+	position: absolute;
+	offset-x: 100%;
+	offset-y: 0;
+	background: black;
+	color: #808080;
+	text-align: center;
+	content-align: center bottom;
+	width: 50%;
+	height: 50%;
+	/* border: panel grey; */
+}
+
+.black-key.pressed {
+	color: yellow;
+	background: grey;
+}
+
+.white-key.pressed {
+	color: yellow;
+	background: silver;
+}
