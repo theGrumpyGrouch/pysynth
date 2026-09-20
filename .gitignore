@@ -7,3 +7,7 @@ bad
 # Any build files
 *.o
 *.so
+
+# Other 
+debug.txt
+pitches.py
